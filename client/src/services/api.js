@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'https://agentflow-ai.onrender.com';
 const API_BASE = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl.replace(/\/$/, '')}/api`;
 
 const api = axios.create({
