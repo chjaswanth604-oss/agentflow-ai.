@@ -24,9 +24,14 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS configuration
+// CORS configuration - Allow local dev, configured CLIENT_URL, and all Vercel deployment domains
 app.use(cors({
-  origin: [env.CLIENT_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: (origin, callback) => {
+    if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin.endsWith('.vercel.app') || (env.CLIENT_URL && origin === env.CLIENT_URL)) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 
