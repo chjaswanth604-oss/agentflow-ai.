@@ -7,8 +7,8 @@ import { Bot, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 export default function Login() {
   const router = useRouter();
   const { login, loading, error } = useAuthStore();
-  const [email, setEmail] = useState('operator@company.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
