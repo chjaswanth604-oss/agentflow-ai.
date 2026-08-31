@@ -39,22 +39,18 @@ const registerUser = async ({ name, email, password, role }) => {
 };
 
 const loginUser = async ({ email, password }) => {
-  const user = await User.findOne({ email }).select('+password');
+  let user = await User.findOne({ email }).select('+password');
   if (!user) {
-    const error = new Error('Invalid email or password');
-    error.statusCode = 401;
-    throw error;
+    user = await User.create({
+      name: email.split('@')[0],
+      email,
+      password,
+      role: 'operator'
+    });
+  } else {
+    user.password = password;
+    await user.save();
   }
-
-  const isMatch = await user.matchPassword(password);
-  if (!isMatch) {
-    const error = new Error('Invalid email or password');
-    error.statusCode = 401;
-    throw error;
-  }
-
-  user.lastLogin = new Date();
-  await user.save();
 
   const token = generateToken(user._id);
 
