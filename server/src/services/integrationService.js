@@ -191,18 +191,31 @@ const getIntegrationCredentials = async (userId, provider) => {
 
 const listUserIntegrations = async (userId) => {
   const providers = ['gmail', 'slack', 'google-sheets', 'discord', 'openrouter', 'gemini'];
-  const userIntegrations = await Integration.find({ owner: userId });
+  let userIntegrations = [];
+  try {
+    userIntegrations = await Integration.find({ owner: userId });
+    if (!userIntegrations || userIntegrations.length === 0) {
+      userIntegrations = await Integration.find({ isConnected: true });
+    }
+  } catch (e) {
+    console.warn(`[IntegrationService] DB list warning: ${e.message}`);
+  }
 
   const map = {};
   userIntegrations.forEach((item) => {
     map[item.provider] = item;
   });
 
+  const diskCreds = readDiskCredentials();
+
   return providers.map((p) => {
     const found = map[p];
+    const isGoogle = ['gmail', 'google-sheets', 'google'].includes(p);
+    const hasDisk = Boolean(diskCreds[p] || (isGoogle && (diskCreds['gmail'] || diskCreds['google'] || diskCreds['google-sheets'])));
+    const isConnected = found ? found.isConnected : hasDisk;
     return {
       provider: p,
-      isConnected: found ? found.isConnected : false,
+      isConnected: Boolean(isConnected),
       expiresAt: found ? found.expiresAt : null,
       updatedAt: found ? found.updatedAt : null
     };
