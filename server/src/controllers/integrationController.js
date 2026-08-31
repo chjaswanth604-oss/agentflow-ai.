@@ -123,17 +123,9 @@ const handleCallback = async (req, res, next) => {
       }
     }
 
-    // Redirect browser back to frontend integrations page if direct browser request, otherwise return JSON
-    const isBrowserNavigation = req.headers['sec-fetch-dest'] === 'document' || req.headers['accept']?.includes('text/html');
-    if (isBrowserNavigation) {
-      return res.redirect(`${env.CLIENT_URL || 'http://localhost:3000'}/integrations?connected=${targetProvider}`);
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: `Successfully connected ${targetProvider} integration.`,
-      provider: targetProvider
-    });
+    // Redirect browser back to frontend integrations page
+    const baseUrl = (env.CLIENT_URL || 'https://agentflow-ai-gamma.vercel.app').replace(/\/$/, '');
+    return res.redirect(`${baseUrl}/integrations?connected=${targetProvider}`);
   } catch (err) {
     next(err);
   }

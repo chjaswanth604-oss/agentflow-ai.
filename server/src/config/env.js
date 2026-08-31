@@ -10,7 +10,7 @@ module.exports = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
   REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
   CREDENTIAL_ENCRYPTION_KEY: process.env.CREDENTIAL_ENCRYPTION_KEY || '12345678901234567890123456789012', // 32 chars for AES-256
-  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
+  CLIENT_URL: process.env.CLIENT_URL || 'https://agentflow-ai-gamma.vercel.app',
   OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || '',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com',
