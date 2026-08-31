@@ -14,7 +14,8 @@ export default function IntegrationsPage() {
     try {
       setLoading(true);
       const res = await api.get('/integrations');
-      setIntegrations(res.data || []);
+      const list = Array.isArray(res) ? res : (res?.data || []);
+      setIntegrations(list);
     } catch (err) {
       console.error(err);
     } finally {
