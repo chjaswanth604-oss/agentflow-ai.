@@ -92,9 +92,9 @@ const saveIntegrationCredentials = async (userId, provider, tokens, scopes = [])
   for (const p of targetProviders) {
     try {
       lastIntegration = await Integration.findOneAndUpdate(
-        { owner: userId, provider: p },
+        { provider: p },
         {
-          owner: userId,
+          owner: userId || 'system_operator',
           provider: p,
           isConnected: true,
           scopes,
@@ -199,10 +199,7 @@ const listUserIntegrations = async (userId) => {
   const providers = ['gmail', 'slack', 'google-sheets', 'discord', 'openrouter', 'gemini'];
   let userIntegrations = [];
   try {
-    userIntegrations = await Integration.find({ owner: userId });
-    if (!userIntegrations || userIntegrations.length === 0) {
-      userIntegrations = await Integration.find({ isConnected: true });
-    }
+    userIntegrations = await Integration.find({ isConnected: true });
   } catch (e) {
     console.warn(`[IntegrationService] DB list warning: ${e.message}`);
   }
