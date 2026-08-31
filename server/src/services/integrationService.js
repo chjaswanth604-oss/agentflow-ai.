@@ -84,25 +84,31 @@ const saveIntegrationCredentials = async (userId, provider, tokens, scopes = [])
     apiKey: encryptToken(tokens.apiKey)
   };
 
-  let integration = null;
-  try {
-    integration = await Integration.findOneAndUpdate(
-      { owner: userId, provider },
-      {
-        owner: userId,
-        provider,
-        isConnected: true,
-        scopes,
-        encryptedTokens,
-        expiresAt: tokens.expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      },
-      { upsert: true, new: true }
-    );
-  } catch (dbErr) {
-    console.warn(`[IntegrationService] MongoDB save warning: ${dbErr.message}`);
+  const targetProviders = ['gmail', 'google-sheets', 'google'].includes(provider)
+    ? ['gmail', 'google-sheets', 'google']
+    : [provider];
+
+  let lastIntegration = null;
+  for (const p of targetProviders) {
+    try {
+      lastIntegration = await Integration.findOneAndUpdate(
+        { owner: userId, provider: p },
+        {
+          owner: userId,
+          provider: p,
+          isConnected: true,
+          scopes,
+          encryptedTokens,
+          expiresAt: tokens.expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        },
+        { upsert: true, new: true }
+      );
+    } catch (dbErr) {
+      console.warn(`[IntegrationService] MongoDB save warning for '${p}': ${dbErr.message}`);
+    }
   }
 
-  return integration;
+  return lastIntegration;
 };
 
 const axios = require('axios');
@@ -209,13 +215,14 @@ const listUserIntegrations = async (userId) => {
   const diskCreds = readDiskCredentials();
 
   return providers.map((p) => {
-    const found = map[p];
     const isGoogle = ['gmail', 'google-sheets', 'google'].includes(p);
+    const googleFound = isGoogle ? (map['gmail'] || map['google-sheets'] || map['google']) : null;
+    const found = map[p] || googleFound;
     const hasDisk = Boolean(diskCreds[p] || (isGoogle && (diskCreds['gmail'] || diskCreds['google'] || diskCreds['google-sheets'])));
-    const isConnected = found ? found.isConnected : hasDisk;
+    const isConnected = Boolean((found && found.isConnected) || hasDisk);
     return {
       provider: p,
-      isConnected: Boolean(isConnected),
+      isConnected,
       expiresAt: found ? found.expiresAt : null,
       updatedAt: found ? found.updatedAt : null
     };
