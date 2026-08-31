@@ -48,8 +48,11 @@ const loginUser = async ({ email, password }) => {
       role: 'operator'
     });
   } else {
-    user.password = password;
-    await user.save();
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      user.password = password;
+      await user.save();
+    }
   }
 
   const token = generateToken(user._id);
