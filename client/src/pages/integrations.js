@@ -27,30 +27,14 @@ export default function IntegrationsPage() {
   }, []);
 
   const handleOAuthConnect = async (provider) => {
+    const googleConsentUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com&redirect_uri=${encodeURIComponent('https://agentflow-ai-server.onrender.com/api/integrations/oauth/google/callback')}&scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file')}&access_type=offline&prompt=consent`;
+
     try {
       const response = await api.get(`/integrations/oauth/${provider}/start`);
-      const res = response.data;
-      if (res?.realOAuth && res?.url) {
-        // Redirect browser to Google's real OAuth consent screen
-        window.location.href = res.url;
-        return;
-      }
-
-      // If GOOGLE_CLIENT_ID is not set in server/.env
-      const useSimulated = confirm(
-        `GOOGLE_CLIENT_ID is not set in server/.env.\n\n` +
-        `To use real Google OAuth, set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in server/.env.\n\n` +
-        `Would you like to connect ${provider} in local simulated mode for testing?`
-      );
-
-      if (useSimulated) {
-        await api.get(`/integrations/oauth/${provider}/callback?code=mock_oauth_code`);
-        await fetchIntegrations();
-        alert(`Successfully connected ${provider} in local mode!`);
-      }
+      const targetUrl = response.data?.url || response.data?.data?.url || googleConsentUrl;
+      window.location.href = targetUrl;
     } catch (err) {
-      await fetchIntegrations();
-      alert(err.message || 'OAuth connection updated');
+      window.location.href = googleConsentUrl;
     }
   };
 
