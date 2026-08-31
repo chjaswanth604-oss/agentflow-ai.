@@ -27,7 +27,7 @@ export default function IntegrationsPage() {
   }, []);
 
   const handleOAuthConnect = async (provider) => {
-    const googleConsentUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com&redirect_uri=${encodeURIComponent('https://agentflow-ai-server.onrender.com/api/integrations/oauth/google/callback')}&scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file')}&access_type=offline&prompt=consent`;
+    const googleConsentUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com&redirect_uri=${encodeURIComponent('https://agentflow-ai-0u7r.onrender.com/api/integrations/oauth/google/callback')}&scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file')}&access_type=offline&prompt=consent`;
 
     try {
       const response = await api.get(`/integrations/oauth/${provider}/start`);
