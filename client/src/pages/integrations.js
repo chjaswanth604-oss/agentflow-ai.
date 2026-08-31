@@ -28,7 +28,8 @@ export default function IntegrationsPage() {
 
   const handleOAuthConnect = async (provider) => {
     try {
-      const res = await api.get(`/integrations/oauth/${provider}/start`);
+      const response = await api.get(`/integrations/oauth/${provider}/start`);
+      const res = response.data;
       if (res?.realOAuth && res?.url) {
         // Redirect browser to Google's real OAuth consent screen
         window.location.href = res.url;
