@@ -28,14 +28,14 @@ export const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.post('/auth/login', { email, password });
-      const payload = res.data?.data || res.data;
-      const { user, token } = payload;
+      const token = res?.token || res?.data?.token || res?.data?.data?.token;
+      const user = res?.user || res?.data?.user || res?.data?.data?.user;
       if (token) localStorage.setItem('agentflow_token', token);
       if (user) localStorage.setItem('agentflow_user', JSON.stringify(user));
-      set({ user, token, isAuthenticated: true, loading: false });
+      set({ user, token, isAuthenticated: Boolean(token), loading: false });
       return true;
     } catch (err) {
-      set({ error: err.response?.data?.error || err.message || 'Login failed', loading: false });
+      set({ error: err.response?.data?.error || err.response?.data?.message || err.message || 'Login failed', loading: false });
       return false;
     }
   },
@@ -44,14 +44,14 @@ export const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.post('/auth/register', { name, email, password, role });
-      const payload = res.data?.data || res.data;
-      const { user, token } = payload;
+      const token = res?.token || res?.data?.token || res?.data?.data?.token;
+      const user = res?.user || res?.data?.user || res?.data?.data?.user;
       if (token) localStorage.setItem('agentflow_token', token);
       if (user) localStorage.setItem('agentflow_user', JSON.stringify(user));
-      set({ user, token, isAuthenticated: true, loading: false });
+      set({ user, token, isAuthenticated: Boolean(token), loading: false });
       return true;
     } catch (err) {
-      set({ error: err.response?.data?.error || err.message || 'Registration failed', loading: false });
+      set({ error: err.response?.data?.error || err.response?.data?.message || err.message || 'Registration failed', loading: false });
       return false;
     }
   },
