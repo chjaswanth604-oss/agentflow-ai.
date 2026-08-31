@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import AppShell from '../components/AppShell';
 import ProtectedRoute from '../components/ProtectedRoute';
 import api from '../services/api';
 import { Link2, Mail, MessageSquare, Bot, Table, CheckCircle2, XCircle, RefreshCw, Key } from 'lucide-react';
 
 export default function IntegrationsPage() {
+  const router = useRouter();
   const [integrations, setIntegrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [manualModal, setManualModal] = useState(null);
@@ -24,8 +26,26 @@ export default function IntegrationsPage() {
   };
 
   useEffect(() => {
-    fetchIntegrations();
-  }, []);
+    if (router.isReady) {
+      const code = router.query.code;
+      if (code) {
+        const handleCodeCallback = async () => {
+          try {
+            setLoading(true);
+            await api.get(`/integrations/oauth/gmail/callback?code=${code}`);
+            await fetchIntegrations();
+            router.replace('/integrations', undefined, { shallow: true });
+          } catch (e) {
+            console.error('[OAuth Callback Exchange Error]:', e);
+            fetchIntegrations();
+          }
+        };
+        handleCodeCallback();
+      } else {
+        fetchIntegrations();
+      }
+    }
+  }, [router.isReady, router.query.code]);
 
   const handleOAuthConnect = async (provider) => {
     const googleConsentUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com&redirect_uri=${encodeURIComponent('https://agentflow-ai-0u7r.onrender.com/api/integrations/oauth/google/callback')}&scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file')}&access_type=offline&prompt=consent`;
