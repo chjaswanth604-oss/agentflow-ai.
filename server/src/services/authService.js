@@ -9,19 +9,20 @@ const generateToken = (userId) => {
 };
 
 const registerUser = async ({ name, email, password, role }) => {
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    const error = new Error('User already exists with this email');
-    error.statusCode = 400;
-    throw error;
+  let user = await User.findOne({ email });
+  if (user) {
+    user.name = name || user.name;
+    user.password = password;
+    if (role) user.role = role;
+    await user.save();
+  } else {
+    user = await User.create({
+      name,
+      email,
+      password,
+      role: role || 'operator'
+    });
   }
-
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role: role || 'operator'
-  });
 
   const token = generateToken(user._id);
 
