@@ -28,13 +28,14 @@ export const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.post('/auth/login', { email, password });
-      const { user, token } = res.data;
-      localStorage.setItem('agentflow_token', token);
-      localStorage.setItem('agentflow_user', JSON.stringify(user));
+      const payload = res.data?.data || res.data;
+      const { user, token } = payload;
+      if (token) localStorage.setItem('agentflow_token', token);
+      if (user) localStorage.setItem('agentflow_user', JSON.stringify(user));
       set({ user, token, isAuthenticated: true, loading: false });
       return true;
     } catch (err) {
-      set({ error: err.message || 'Login failed', loading: false });
+      set({ error: err.response?.data?.error || err.message || 'Login failed', loading: false });
       return false;
     }
   },
@@ -43,13 +44,14 @@ export const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await api.post('/auth/register', { name, email, password, role });
-      const { user, token } = res.data;
-      localStorage.setItem('agentflow_token', token);
-      localStorage.setItem('agentflow_user', JSON.stringify(user));
+      const payload = res.data?.data || res.data;
+      const { user, token } = payload;
+      if (token) localStorage.setItem('agentflow_token', token);
+      if (user) localStorage.setItem('agentflow_user', JSON.stringify(user));
       set({ user, token, isAuthenticated: true, loading: false });
       return true;
     } catch (err) {
-      set({ error: err.message || 'Registration failed', loading: false });
+      set({ error: err.response?.data?.error || err.message || 'Registration failed', loading: false });
       return false;
     }
   },
