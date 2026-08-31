@@ -24,8 +24,10 @@ const startOAuth = async (req, res, next) => {
   try {
     const { provider } = req.params;
 
-    // Check if Google OAuth credentials configured in server/.env
-    if ((provider === 'gmail' || provider === 'google-sheets' || provider === 'google') && env.GOOGLE_CLIENT_ID) {
+    // Check if provider is Google (Gmail / Google Sheets / Google)
+    if (provider === 'gmail' || provider === 'google-sheets' || provider === 'google') {
+      const clientId = env.GOOGLE_CLIENT_ID || '339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com';
+      const redirectUri = env.GOOGLE_CALLBACK_URL || 'https://agentflow-ai-0u7r.onrender.com/api/integrations/oauth/google/callback';
       const scopes = [
         'https://www.googleapis.com/auth/gmail.send',
         'https://www.googleapis.com/auth/gmail.readonly',
@@ -34,12 +36,11 @@ const startOAuth = async (req, res, next) => {
         'https://www.googleapis.com/auth/drive.file'
       ].join(' ');
 
-      const redirectUri = env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/integrations/oauth/google/callback';
       const state = `${req.user.id}_${provider}`;
 
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `response_type=code&` +
-        `client_id=${encodeURIComponent(env.GOOGLE_CLIENT_ID)}&` +
+        `client_id=${encodeURIComponent(clientId)}&` +
         `redirect_uri=${encodeURIComponent(redirectUri)}&` +
         `scope=${encodeURIComponent(scopes)}&` +
         `access_type=offline&` +
