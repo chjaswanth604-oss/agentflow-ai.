@@ -38,7 +38,7 @@ app.use(cors({
 // Rate limiting for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 10000,
   message: { success: false, message: 'Too many authentication attempts, please try again later.' }
 });
 
@@ -56,7 +56,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Route mounts
-app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/executions', executionRoutes);
 app.use('/api/integrations', integrationRoutes);
