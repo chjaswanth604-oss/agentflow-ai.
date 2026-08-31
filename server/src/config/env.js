@@ -15,7 +15,7 @@ module.exports = {
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com',
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || ('GOCSPX-' + 'gX-4wNUB_9qX6u4Y1MiTFkSRvBUO'),
-  GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL || 'https://agentflow-ai-0u7r.onrender.com/api/integrations/oauth/google/callback',
+  GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL || 'https://agentflow-ai-server.onrender.com/api/integrations/oauth/google/callback',
   SUPABASE_URL: process.env.SUPABASE_URL || '',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || ''
