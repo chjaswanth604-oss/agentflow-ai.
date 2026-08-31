@@ -53,8 +53,16 @@ const readDiskCredentials = () => {
   return {};
 };
 
+global.__PERSISTENT_INTEGRATIONS__ = global.__PERSISTENT_INTEGRATIONS__ || {};
+
 const writeDiskCredentials = (provider, tokens) => {
   try {
+    global.__PERSISTENT_INTEGRATIONS__[provider] = tokens;
+    if (['gmail', 'google-sheets', 'google'].includes(provider)) {
+      global.__PERSISTENT_INTEGRATIONS__['gmail'] = tokens;
+      global.__PERSISTENT_INTEGRATIONS__['google-sheets'] = tokens;
+      global.__PERSISTENT_INTEGRATIONS__['google'] = tokens;
+    }
     const dir = path.dirname(CREDENTIALS_FILE);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const current = readDiskCredentials();
@@ -210,13 +218,15 @@ const listUserIntegrations = async (userId) => {
   });
 
   const diskCreds = readDiskCredentials();
+  const globalCreds = global.__PERSISTENT_INTEGRATIONS__ || {};
 
   return providers.map((p) => {
     const isGoogle = ['gmail', 'google-sheets', 'google'].includes(p);
     const googleFound = isGoogle ? (map['gmail'] || map['google-sheets'] || map['google']) : null;
     const found = map[p] || googleFound;
     const hasDisk = Boolean(diskCreds[p] || (isGoogle && (diskCreds['gmail'] || diskCreds['google'] || diskCreds['google-sheets'])));
-    const isConnected = Boolean((found && found.isConnected) || hasDisk);
+    const hasGlobal = Boolean(globalCreds[p] || (isGoogle && (globalCreds['gmail'] || globalCreds['google'] || globalCreds['google-sheets'])));
+    const isConnected = Boolean((found && found.isConnected) || hasDisk || hasGlobal);
     return {
       provider: p,
       isConnected,
