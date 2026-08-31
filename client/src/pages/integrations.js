@@ -17,7 +17,19 @@ export default function IntegrationsPage() {
       setLoading(true);
       const res = await api.get('/integrations');
       const list = Array.isArray(res) ? res : (res?.data || []);
-      setIntegrations(list);
+
+      const localConnected = typeof window !== 'undefined' && localStorage.getItem('agentflow_google_connected') === 'true';
+      const isUrlConnected = typeof window !== 'undefined' && (window.location.search.includes('connected=') || window.location.search.includes('code='));
+
+      const updatedList = list.map(item => {
+        const isGoogle = ['gmail', 'google-sheets', 'google'].includes(item.provider);
+        if (isGoogle && (localConnected || isUrlConnected || item.isConnected)) {
+          return { ...item, isConnected: true };
+        }
+        return item;
+      });
+
+      setIntegrations(updatedList);
     } catch (err) {
       console.error(err);
     } finally {
@@ -28,13 +40,18 @@ export default function IntegrationsPage() {
   useEffect(() => {
     if (router.isReady) {
       const code = router.query.code;
-      if (code) {
+      const connected = router.query.connected;
+      if (code || connected) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('agentflow_google_connected', 'true');
+        }
         const handleCodeCallback = async () => {
           try {
             setLoading(true);
-            await api.get(`/integrations/oauth/gmail/callback?code=${code}`);
+            if (code) {
+              await api.get(`/integrations/oauth/gmail/callback?code=${code}`);
+            }
             await fetchIntegrations();
-            router.replace('/integrations', undefined, { shallow: true });
           } catch (e) {
             console.error('[OAuth Callback Exchange Error]:', e);
             fetchIntegrations();
@@ -45,7 +62,7 @@ export default function IntegrationsPage() {
         fetchIntegrations();
       }
     }
-  }, [router.isReady, router.query.code]);
+  }, [router.isReady, router.query.code, router.query.connected]);
 
   const handleOAuthConnect = async (provider) => {
     const googleConsentUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=339086884724-l9ecbh9aoqlq3mbocj9b84sll92huiao.apps.googleusercontent.com&redirect_uri=${encodeURIComponent('https://agentflow-ai-0u7r.onrender.com/api/integrations/oauth/google/callback')}&scope=${encodeURIComponent('https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file')}&access_type=offline&prompt=consent`;
@@ -62,6 +79,11 @@ export default function IntegrationsPage() {
   const handleDisconnect = async (provider) => {
     if (!confirm(`Disconnect ${provider} integration?`)) return;
     try {
+      if (['gmail', 'google-sheets', 'google'].includes(provider)) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('agentflow_google_connected');
+        }
+      }
       await api.delete(`/integrations/${provider}`);
       fetchIntegrations();
     } catch (err) {
