@@ -5,6 +5,7 @@ const API_BASE = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl.replace(/\/$/, '')
 
 const api = axios.create({
   baseURL: API_BASE,
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json'
   }
