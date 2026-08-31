@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'https://agentflow-ai-0u7r.onrender.com';
 const API_BASE = rawUrl.endsWith('/api') ? rawUrl : `${rawUrl.replace(/\/$/, '')}/api`;
+if (typeof window !== 'undefined') console.log('[API Connected]:', API_BASE);
 
 const api = axios.create({
   baseURL: API_BASE,
